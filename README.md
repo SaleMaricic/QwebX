@@ -42,7 +42,7 @@ Software | Minimal Version | Purpose
 Clone the complete project repository and install all dependencies:
 
     # Clone the repository
-    git clone [https://github.com/SaleMaricic/QwebX.git](https://github.com/SaleMaricic/QwebX.git)
+    git clone https://github.com/SaleMaricic/QwebX.git
     cd QwebX
 
     # Install all dependencies (package.json)
