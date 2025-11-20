@@ -94,7 +94,7 @@ QwebX je posebno optimizovan da udahne novi život starijim macOS verzijama:
 
 Ovaj projekat je objavljen pod **MIT licencom**.
 
-Pogledajte fajl `LICENSE` za više informacija.
+Pogledajte fajl [LICENSE](LICENSE) za više informacija.
 
 ---
 
