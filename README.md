@@ -48,52 +48,57 @@ cd QwebX
 
 # Instalacija svih zavisnosti (package.json)
 npm install
-
+```
 ### 3. Kompajliranje za Specifične Platforme
 QwebX koristi electron-builder za automatsko pakovanje. 
 Svi potrebni skriptovi su definisani u sekciji "scripts" u package.json.
-Testiranje u Razvojnom Modu
+#### Testiranje u Razvojnom Modu
 Za brzo testiranje aplikacije bez kompajliranja finalnog paketa:
 ```bash
 npm run start
+```
 
-Kompajliranje Finalnih Paketa
-Platforma
-Komanda za Izvršavanje
-Izlazni FormatLinux (Debian/Ubuntu)
-npm run build-deb.deb 
-paketLinux (Univerzalni)
-npm run build-appimageAppImage
-Windows
-npm run build-win
-Portable EXE (bez instalacije)
-macOS
-npm run build-mac.zip 
-arhiva (standardna distribucija)
+#### 📦 Kompajliranje Finalnih Paketa
 
-###4. Generisanje Sistemskih Ikona
+| Platforma | Komanda za Izvršavanje | Izlazni Format |
+| :--- | :--- | :--- |
+| **Linux (Debian/Ubuntu)** | `npm run build-deb` | .deb paket |
+| **Linux (Univerzalni)** | `npm run build-appimage` | AppImage |
+| **Windows** | `npm run build-win` | Portable EXE (bez instalacije) |
+| **macOS** | `npm run build-mac` | .zip arhiva (standardna distribucija) |
+
+### 4. Generisanje Sistemskih Ikona
 Ukoliko menjate izvornu build/icon.png, morate ponovo generisati sve formatirane ikone (.ico, .icns):
-```Bash
+```bash
 npm run icons
-
+```
 ### 5. Izlazni Direktorijum
-Svi finalni, kompajlirani paketi će se nalaziti u direktorijumu:
+Svi finalni i kompajlirani paketi biće generisani u direktorijumu:
+```bash
 QwebX/dist/
-Ciljna Platforma i Kompatibilnost
-QwebX je primarno namenjen da udahne novi život sledećim macOS verzijama:
-OS Verzija
-Podrška
-Napomena
-macOS 10.10 Yosemite
-Minimalna
-Radi stabilno na starijem hardveru.
-macOS 10.11 El Capitan - 10.14 Mojave
-Optimalna
-Preporučeni opseg gde su optimizacije najefikasnije.
-Novije macOS verzije
-Puna
-Radi, ali nativni pretraživači na Apple Siliconu (arm64) imaju bolje performanse. 
-Licenca
-Ovaj projekat je licenciran pod MIT Licencom – pogledajte fajl LICENSE za više detalja. Kontakt
-Autor: Aleksandar Maričić
-Email: sale.maricic@gmail.com
+```
+
+### 🖥️ Ciljna Platforma i Kompatibilnost
+
+QwebX je posebno optimizovan da udahne novi život starijim macOS verzijama:
+
+| OS Verzija | Podrška | Napomena |
+| :--- | :--- | :--- |
+| **macOS 10.10 Yosemite** | Minimalna | Radi stabilno na veoma starom hardveru |
+| **macOS 10.11 El Capitan – 10.14 Mojave** | Optimalna | Najbolje performanse i najefikasnije optimizacije |
+| **Novije verzije macOS-a** | Puna | Radi, ali nativni browseri na Apple Silicon (arm64) uređajima imaju bolje performanse |
+
+---
+
+### 📜 Licenca
+
+Ovaj projekat je objavljen pod **MIT licencom**.
+
+Pogledajte fajl `LICENSE` za više informacija.
+
+---
+
+### 📬 Kontakt
+
+* **Autor:** Aleksandar Maričić
+* **Email:** qwebx@abel.rs
