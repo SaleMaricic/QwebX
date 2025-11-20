@@ -1,5 +1,5 @@
 # QwebX
-The source code for QwebX, a fast Serbian web browser built on Electron.
+A fast Electron/Chromium browser specifically optimized to enable older macOS systems (Yosemite, El Capitan, Mojave) to access modern web services and functionalities..
 # QwebX - The Next-Generation Serbian Browser
 
 [![GitHub license](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
