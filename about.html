@@ -293,7 +293,7 @@
                 </div>
                 <div class="info-item">
                     <div class="info-label">Verzija pregledača</div>
-                    <div class="info-value">QwebX 1.1.7</div>
+                    <div class="info-value">QwebX 1.2.4</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Engine</div>
@@ -407,7 +407,7 @@
         }
 
         function checkUpdates() {
-            alert('Provera ažuriranja...\nTrenutno koristite najnoviju verziju QwebX 1.1.7');
+            alert('Provera ažuriranja...\nTrenutno koristite najnoviju verziju QwebX 1.2.4');
             // window.electronAPI.checkForUpdates();
         }
 
@@ -421,7 +421,7 @@
 
         function reportBug() {
             const email = 'qwebx@abel.rs';
-            const subject = 'QwebX Bug Report - Verzija 1.1.7';
+            const subject = 'QwebX Bug Report - Verzija 1.2.4';
             const body = 'Opis problema:\n\nKoraci za reprodukciju:\n\nOčekivano ponašanje:\n\nStvarno ponašanje:\n\nDodatne informacije:';
             window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
         }
