@@ -43,7 +43,7 @@ Preuzmite kompletan izvorni kod projekta i instalirajte zavisnosti:
 
 ```bash
 # Kloniranje repozitorijuma
-git clone [https://github.com/SaleMaricic/QwebX.git](https://github.com/SaleMaricic/QwebX.git)
+git clone https://github.com/SaleMaricic/QwebX.git
 cd QwebX
 
 # Instalacija svih zavisnosti (package.json)
