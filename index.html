@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval';">
+  <title>QwebX Browser</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui;
+      background: transparent;
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    :root {
+      --bg: #111;
+      --toolbar: #222;
+      --accent: #1a73e8;
+      --text: white;
+      --input-bg: rgba(255, 255, 255, 0.15);
+      --input-border: #555;
+      --input-focus: #1a73e8;
+      --status-bar-height: 25px;
+      --toolbar-height: 88px;
+    }
+
+    .toolbar {
+      background: var(--toolbar);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      border-bottom: 1px solid #444;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      overflow: hidden;
+      z-index: 1000;
+      position: relative;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .left-nav {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex: 1;
+    }
+
+    .right-nav {
+      display: flex;
+      gap: 6px;
+    }
+
+    button {
+      background: #444;
+      border: none;
+      color: white;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:hover {
+      background: #666;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #search-btn {
+      font-size: 18px;
+      width: 36px;
+      height: 36px;
+    }
+
+    #print-btn {
+      font-size: 18px;
+      width: 36px;
+      height: 36px;
+    }
+
+    #address-bar-container {
+      position: relative;
+      flex: 1;
+      min-width: 300px;
+    }
+
+    #address-bar {
+      width: 100%;
+      padding: 9px 14px;
+      background: var(--input-bg);
+      border: 2px solid var(--input-border);
+      border-radius: 30px;
+      color: white;
+      font-size: 15px;
+      backdrop-filter: blur(12px);
+      height: 36px;
+      box-sizing: border-box;
+    }
+
+    #address-bar:focus {
+      outline: none;
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.3);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 0 6px;
+      min-height: 24px;
+      margin-left: 70px;
+    }
+
+    .tab {
+      background: #333;
+      padding: 6px 14px;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      min-width: 130px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 13px;
+      border-bottom: 2px solid transparent;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tab.active {
+      background: #444;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .tab .title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tab .close {
+      width: 20px;
+      height: 20px;
+      margin-left: 8px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      opacity: 0.7;
+      transition: all 0.2s;
+    }
+
+    .tab .close:hover {
+      background: rgba(255, 0, 0, 0.5);
+      opacity: 1;
+      color: white;
+    }
+
+    #content {
+      flex: 1;
+      min-height: 0;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    #status-bar {
+      height: var(--status-bar-height);
+      background: #222;
+      color: white;
+      padding: 0 10px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-shrink: 0;
+      border-top: 1px solid #444;
+      z-index: 1000;
+      position: relative;
+    }
+
+    #link-url-display {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 90%;
+      opacity: 0.9;
+    }
+
+    #download-info {
+      margin-left: auto;
+      padding: 0 10px;
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    #downloads-container {
+      position: absolute;
+      bottom: var(--status-bar-height);
+      right: 0;
+      width: 300px;
+      background: #333;
+      border-top: 2px solid var(--accent);
+      padding: 10px;
+      z-index: 1001;
+      max-height: 30vh;
+      overflow-y: auto;
+      box-shadow: 0 -5px 10px rgba(0,0,0,0.5);
+      display: none;
+      border-radius: 8px 0 0 0;
+    }
+
+    .downloads-header {
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .close-downloads {
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 5px;
+    }
+
+    .download-item {
+      background: #444;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      transition: background 0.3s;
+    }
+
+    .progress-bar {
+      height: 5px;
+      background: var(--bg);
+      margin-top: 5px;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.1s;
+    }
+
+    /* macOS KONTROLE - Sakriveno na pravom macOS-u */
+    #macos-controls {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      display: flex;
+      gap: 8px;
+      z-index: 10000;
+      pointer-events: auto;
+    }
+
+    /* Sakrij custom kontrole kada je na macOS-u */
+    body.macos #macos-controls {
+      display: none !important;
+    }
+
+    /* Prikaži custom kontrole samo kada NIJE macOS */
+    body:not(.macos) #macos-controls {
+      display: flex;
+    }
+
+    .macos-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .macos-btn.close { background: #ff5f57; border-color: #e0443e; }
+    .macos-btn.minimize { background: #ffbd2e; border-color: #e09e1f; }
+    .macos-btn.fullscreen { background: #28c940; border-color: #1ea733; }
+
+    .macos-btn:hover {
+      opacity: 0.8;
+      transform: scale(1.15);
+    }
+
+    /* LOGO STYLES */
+    #browser-logo {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 100px;
+      height: 32px;
+      cursor: move;
+      z-index: 10001;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #browser-logo:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    #browser-logo:active {
+      transform: scale(1.05);
+      cursor: grabbing;
+    }
+
+    #browser-logo img {
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    #about {
+  font-size: 18px; /* Malo veći emoji */
+}
+
+#devtools {
+  font-size: 18px; /* Malo veći emoji */
+}
+
+#print-btn {
+  font-size: 18px; /* Malo veći emoji */
+}
+
+#back { font-size: 18px; /* Malo veći emoji */}
+#forward { font-size: 18px; /* Malo veći emoji */}
+#reload { font-size: 18px; /* Malo veći emoji */}
+#home { font-size: 18px; /* Malo veći emoji */}
+#newtab { font-size: 18px; /* Malo veći emoji */}
+
+
+    /* NOTIFIKACIJE */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #1a73e8;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      z-index: 10000;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* KONTEKSTNI MENI (sakriven jer koristimo Electronov) */
+    #context-menu {
+      display: none !important;
+    }
+
+    /* SHORTCUT INDICATOR */
+    .shortcut-hint {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 12px;
+      z-index: 10000;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- macOS KONTROLE - Sakrivene na macOS-u -->
+  <div id="macos-controls">
+    <div class="macos-btn close" title="Zatvori"></div>
+    <div class="macos-btn minimize" title="Minimizuj"></div>
+    <div class="macos-btn fullscreen" title="Ceo ekran"></div>
+  </div>
+
+  <!-- LOGO ZA POMERANJE PROZORA -->
+  <div id="browser-logo" title="Držite za pomeranje prozora">
+    <img src="qwebx-logo.jpg" alt="QwebX Browser Logo">
+  </div>
+
+  <div class="toolbar">
+    <div class="tabs" id="tabs"></div>
+    <div class="nav">
+      <div class="left-nav">
+        <button id="back" disabled>◀</button>
+        <button id="forward" disabled>▶</button>
+        <button id="reload">↻</button>
+        <button id="home">🏠</button>
+        <button id="newtab">+</button>
+        <button id="search-btn" title="Pretraga">🔍</button>
+        <div id="address-bar-container">
+          <input type="text" id="address-bar" placeholder="Unesi URL ili pretragu...">
+        </div>
+      </div>
+      <div class="right-nav">
+        <button id="devtools" title="DevTools">🛠️</button>
+        <button id="print-btn" title="Štampaj (Ctrl+P)">🖨️</button>
+        <button id="about" title="O programu">🖥️</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="content"></div>
+
+  <div id="status-bar">
+    <div id="link-url-display"></div>
+    <div id="download-info"></div>
+  </div>
+
+  <div id="downloads-container">
+    <div class="downloads-header">
+      <span>Preuzimanja</span>
+      <span class="close-downloads">×</span>
+    </div>
+    <div id="downloads-list"></div>
+  </div>
+
+  <!-- SHORTCUT HINT -->
+  <div class="shortcut-hint" id="shortcutHint"></div>
+
+<script>
+    if (!window.electronAPI) {
+        console.error("Electron API nije pronađen.");
+    }
+
+    // ========== POBOLJŠANA DETEKCIJA PLATFORME ==========
+    async function detectPlatform() {
+        try {
+            const platform = await window.electronAPI.getPlatform();
+            console.log('Platforma:', platform);
+
+            if (platform === 'darwin') { // 'darwin' je macOS u Electronu
+                document.body.classList.add('macos');
+                console.log('✅ macOS detektovan - custom kontrole sakrivene');
+            } else {
+                document.body.classList.add('not-macos');
+                console.log(`🌍 ${platform} platforma - prikaz custom kontrola`);
+
+                // Postavi event listenere samo ako NIJE macOS
+                document.querySelector('.macos-btn.close').onclick = () => window.electronAPI.windowControl('close');
+                document.querySelector('.macos-btn.minimize').onclick = () => window.electronAPI.windowControl('minimize');
+                document.querySelector('.macos-btn.fullscreen').onclick = () => window.electronAPI.windowControl('maximize');
+            }
+        } catch (error) {
+            console.error('Greška pri detekciji platforme:', error);
+            // Fallback na User Agent detekciju
+            detectMacOSFallback();
+        }
+    }
+
+    // Fallback detekcija preko User Agent-a
+    function detectMacOSFallback() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isMacOS = userAgent.includes('macintosh') ||
+                        userAgent.includes('mac os x') ||
+                        userAgent.includes('macos');
+
+        console.log('User Agent fallback:', navigator.userAgent);
+        console.log('Detektovan macOS (fallback):', isMacOS);
+
+        if (isMacOS) {
+            document.body.classList.add('macos');
+            console.log('✅ macOS detektovan (fallback) - custom kontrole sakrivene');
+        } else {
+            document.body.classList.add('not-macos');
+            console.log('🌍 Nije macOS (fallback) - prikaz custom kontrola');
+
+            // Postavi event listenere samo ako NIJE macOS
+            document.querySelector('.macos-btn.close').onclick = () => window.electronAPI.windowControl('close');
+            document.querySelector('.macos-btn.minimize').onclick = () => window.electronAPI.windowControl('minimize');
+            document.querySelector('.macos-btn.fullscreen').onclick = () => window.electronAPI.windowControl('maximize');
+        }
+    }
+    // ========== KRAJ DETEKCIJE ==========
+
+    const tabsContainer = document.getElementById('tabs');
+    const addressBar = document.getElementById('address-bar');
+    const searchBtn = document.getElementById('search-btn');
+    const printBtn = document.getElementById('print-btn');
+    const backBtn = document.getElementById('back');
+    const forwardBtn = document.getElementById('forward');
+    const reloadBtn = document.getElementById('reload');
+    const devtoolsBtn = document.getElementById('devtools');
+    const homeBtn = document.getElementById('home');
+    const linkUrlDisplay = document.getElementById('link-url-display');
+    const downloadInfo = document.getElementById('download-info');
+    const downloadsContainer = document.getElementById('downloads-container');
+    const downloadsList = document.getElementById('downloads-list');
+    const shortcutHint = document.getElementById('shortcutHint');
+
+    let tabs = [];
+    let activeTabId = null;
+    let activeDownloads = 0;
+    let customFolderPath = null;
+
+    // ========== GLOBALNE PREČICE HANDLER ==========
+    function initializeGlobalShortcuts() {
+        console.log('🎹 Inicijalizujem globalne prečice...');
+
+        // Listen za globalne prečice iz main procesa
+        window.electronAPI.onGlobalShortcut((event, action) => {
+            console.log('🎹 Globalna prečica primljena:', action);
+            handleGlobalShortcut(action);
+        });
+
+        // Lokalne prečice koje se hendlaju u renderer procesu
+        document.addEventListener('keydown', (e) => {
+            handleLocalShortcut(e);
+        });
+    }
+
+    function handleGlobalShortcut(action) {
+        switch (action) {
+            case 'new-tab':
+                console.log('🎹 Izvršavam: Novi tab');
+                showShortcutHint('Ctrl+T - Novi tab');
+                window.electronAPI.newTab('https://abel.rs/zx/');
+                break;
+
+            case 'close-tab':
+                console.log('🎹 Izvršavam: Zatvori tab');
+                showShortcutHint('Ctrl+W - Zatvori tab');
+                if (activeTabId) {
+                    window.electronAPI.controlTab('close', activeTabId);
+                }
+                break;
+
+            case 'reload':
+                console.log('🎹 Izvršavam: Osveži');
+                showShortcutHint('F5/Ctrl+R - Osveži stranicu');
+                if (activeTabId) {
+                    window.electronAPI.controlTab('reload', activeTabId);
+                }
+                break;
+
+            case 'focus-address-bar':
+                console.log('🎹 Izvršavam: Fokus na adresnu traku');
+                showShortcutHint('Ctrl+L - Fokus na adresnu traku');
+                addressBar.focus();
+                addressBar.select();
+                break;
+
+            case 'show-history':
+                console.log('🎹 Izvršavam: Prikaži istoriju');
+                showShortcutHint('Ctrl+H - Istorija');
+                showNotification('📚 Istorija - Funkcija u razvoju');
+                break;
+
+            case 'show-downloads':
+                console.log('🎹 Izvršavam: Prikaži preuzimanja');
+                showShortcutHint('Ctrl+J - Preuzimanja');
+                downloadsContainer.style.display = 'block';
+                break;
+
+            case 'add-bookmark':
+                console.log('🎹 Izvršavam: Dodaj u omiljene');
+                showShortcutHint('Ctrl+D - Dodaj u omiljene');
+                const activeTab = getActiveTab();
+                if (activeTab && activeTab.url) {
+                    showNotification(`⭐ Dodato u omiljene: ${activeTab.title || activeTab.url}`);
+                }
+                break;
+
+            case 'print':
+                console.log('🎹 Izvršavam: Štampanje');
+                showShortcutHint('Ctrl+P - Štampanje');
+                if (getActiveTab()) {
+                    window.electronAPI.printPage(activeTabId);
+                }
+                break;
+
+            case 'devtools':
+                console.log('🎹 Izvršavam: Developer Tools');
+                showShortcutHint('F12 - Developer Tools');
+                if (activeTabId) {
+                    window.electronAPI.controlTab('devtools', activeTabId);
+                }
+                break;
+
+            case 'toggle-fullscreen':
+                console.log('🎹 Izvršavam: Ceo ekran');
+                showShortcutHint('F11 - Ceo ekran');
+                window.electronAPI.windowControl('maximize');
+                break;
+
+            case 'go-back':
+                console.log('🎹 Izvršavam: Nazad');
+                showShortcutHint('Alt+← - Nazad');
+                if (getActiveTab()) {
+                    window.electronAPI.controlTab('back', activeTabId);
+                }
+                break;
+
+            case 'go-forward':
+                console.log('🎹 Izvršavam: Napred');
+                showShortcutHint('Alt+→ - Napred');
+                if (getActiveTab()) {
+                    window.electronAPI.controlTab('forward', activeTabId);
+                }
+                break;
+
+            case 'next-tab':
+                console.log('🎹 Izvršavam: Sledeći tab');
+                showShortcutHint('Ctrl+Tab - Sledeći tab');
+                switchToNextTab();
+                break;
+
+            case 'previous-tab':
+                console.log('🎹 Izvršavam: Prethodni tab');
+                showShortcutHint('Ctrl+Shift+Tab - Prethodni tab');
+                switchToPreviousTab();
+                break;
+
+            default:
+                console.log('🎹 Nepoznata prečica akcija:', action);
+        }
+    }
+
+    function handleLocalShortcut(e) {
+        // Sprečavamo default ponašanje samo za naše prečice
+        const handledKeys = [
+            't', 'w', 'n', 'r', 'l', 'h', 'j', 'd', 'p',
+            'Tab', 'F5', 'F11', 'F12'
+        ];
+
+        if ((e.ctrlKey || e.metaKey) && handledKeys.includes(e.key)) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // CTRL+SHIFT+Tab hendlamo posebno
+        if (e.ctrlKey && e.shiftKey && e.key === 'Tab') {
+            e.preventDefault();
+            e.stopPropagation();
+            switchToPreviousTab();
+            return;
+        }
+
+        // Lokalne prečice koje ne idu preko main procesa
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case 't':
+                    console.log('🎹 Lokalna prečica: Ctrl+T');
+                    showShortcutHint('Ctrl+T - Novi tab');
+                    window.electronAPI.newTab('https://abel.rs/zx/');
+                    break;
+
+                case 'l':
+                    console.log('🎹 Lokalna prečica: Ctrl+L');
+                    showShortcutHint('Ctrl+L - Fokus na adresnu traku');
+                    addressBar.focus();
+                    addressBar.select();
+                    break;
+
+                case 'r':
+                    console.log('🎹 Lokalna prečica: Ctrl+R');
+                    showShortcutHint('Ctrl+R - Osveži stranicu');
+                    if (activeTabId) {
+                        window.electronAPI.controlTab('reload', activeTabId);
+                    }
+                    break;
+
+                case 'h':
+                    console.log('🎹 Lokalna prečica: Ctrl+H');
+                    showShortcutHint('Ctrl+H - Istorija');
+                    showNotification('📚 Istorija - Funkcija u razvoju');
+                    break;
+
+                case 'j':
+                    console.log('🎹 Lokalna prečica: Ctrl+J');
+                    showShortcutHint('Ctrl+J - Preuzimanja');
+                    downloadsContainer.style.display = 'block';
+                    break;
+
+                case 'd':
+                    console.log('🎹 Lokalna prečica: Ctrl+D');
+                    showShortcutHint('Ctrl+D - Dodaj u omiljene');
+                    const activeTab = getActiveTab();
+                    if (activeTab && activeTab.url) {
+                        showNotification(`⭐ Dodato u omiljene: ${activeTab.title || activeTab.url}`);
+                    }
+                    break;
+
+                case 'p':
+                    console.log('🎹 Lokalna prečica: Ctrl+P');
+                    showShortcutHint('Ctrl+P - Štampanje');
+                    if (getActiveTab()) {
+                        window.electronAPI.printPage(activeTabId);
+                    }
+                    break;
+            }
+        }
+
+        // Funkcijska dugmad
+        switch(e.key) {
+            case 'F5':
+                console.log('🎹 Lokalna prečica: F5');
+                showShortcutHint('F5 - Osveži stranicu');
+                if (activeTabId) {
+                    window.electronAPI.controlTab('reload', activeTabId);
+                }
+                break;
+
+            case 'F11':
+                console.log('🎹 Lokalna prečica: F11');
+                showShortcutHint('F11 - Ceo ekran');
+                window.electronAPI.windowControl('maximize');
+                break;
+
+            case 'F12':
+                console.log('🎹 Lokalna prečica: F12');
+                showShortcutHint('F12 - Developer Tools');
+                if (activeTabId) {
+                    window.electronAPI.controlTab('devtools', activeTabId);
+                }
+                break;
+        }
+    }
+
+    // Pomoćne funkcije za tab navigaciju
+    function switchToNextTab() {
+        if (tabs.length > 1) {
+            const currentIndex = tabs.findIndex(t => t.id === activeTabId);
+            const nextIndex = (currentIndex + 1) % tabs.length;
+            const nextTabId = tabs[nextIndex].id;
+            window.electronAPI.controlTab('activate', nextTabId);
+        }
+    }
+
+    function switchToPreviousTab() {
+        if (tabs.length > 1) {
+            const currentIndex = tabs.findIndex(t => t.id === activeTabId);
+            const prevIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+            const prevTabId = tabs[prevIndex].id;
+            window.electronAPI.controlTab('activate', prevTabId);
+        }
+    }
+
+    function showShortcutHint(text) {
+        shortcutHint.textContent = text;
+        shortcutHint.style.display = 'block';
+        setTimeout(() => {
+            shortcutHint.style.display = 'none';
+        }, 2000);
+    }
+
+    // Utility funkcije
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    function getActiveTab() {
+        return tabs.find(t => t.id === activeTabId);
+    }
+
+    function updateNavButtons(tabData) {
+        if (tabData && tabData.id === activeTabId) {
+            backBtn.disabled = !tabData.canGoBack;
+            forwardBtn.disabled = !tabData.canGoForward;
+        } else {
+            backBtn.disabled = true;
+            forwardBtn.disabled = true;
+        }
+    }
+
+    function updateAddressBarAndTitle(tabData) {
+        if (tabData && tabData.id === activeTabId) {
+            addressBar.value = tabData.url || '';
+            const activeTabElement = document.querySelector(`.tab[data-id="${tabData.id}"] .title`);
+            if (activeTabElement) {
+                 activeTabElement.textContent = tabData.title || tabData.url || 'Nova kartica';
+            }
+        }
+    }
+
+    function renderTabs() {
+        console.log('Rendering tabs:', tabs);
+        tabsContainer.innerHTML = '';
+        tabs.forEach(tabData => {
+            const tabElement = document.createElement('div');
+            tabElement.className = 'tab';
+            tabElement.dataset.id = tabData.id;
+            if (tabData.id === activeTabId) tabElement.classList.add('active');
+            tabElement.innerHTML = `
+                <span class="title">${tabData.title || tabData.url || 'Nova kartica'}</span>
+                <span class="close">×</span>
+            `;
+
+            // Klik na X dugme za zatvaranje
+            const closeBtn = tabElement.querySelector('.close');
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                console.log('Closing tab from UI:', tabData.id);
+                window.electronAPI.controlTab('close', tabData.id);
+            };
+
+            // Klik na tab za aktivaciju
+            tabElement.onclick = (e) => {
+                if (!e.target.classList.contains('close')) {
+                    console.log('Activating tab:', tabData.id);
+                    window.electronAPI.controlTab('activate', tabData.id);
+                }
+            };
+
+            tabsContainer.appendChild(tabElement);
+        });
+    }
+
+    // Logo drag functionality - ULTRA POENOSTAVLJENA VERZIJA
+    function initializeLogoDrag() {
+        const logo = document.getElementById('browser-logo');
+        let isDragging = false;
+        let lastMousePos = { x: 0, y: 0 };
+
+        logo.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastMousePos.x = e.screenX;
+            lastMousePos.y = e.screenY;
+
+            logo.style.cursor = 'grabbing';
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            // Trenutna delta od poslednjeg frame-a
+            const deltaX = e.screenX - lastMousePos.x;
+            const deltaY = e.screenY - lastMousePos.y;
+
+            // Ažuriraj za sledeći frame
+            lastMousePos.x = e.screenX;
+            lastMousePos.y = e.screenY;
+
+            window.electronAPI.windowControl('move-delta', { deltaX, deltaY });
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            logo.style.cursor = 'move';
+            document.body.style.userSelect = '';
+        });
+
+        logo.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+
+    // Pametna URL/pretraga obrada - POBOLJŠANA VERZIJA
+    function processInput(input) {
+        input = input.trim();
+        if (!input) return null;
+
+        // Proveri da li je download link
+        if (isDownloadLink(input)) {
+            console.log('Download link detected:', input);
+            handleDownload(input);
+            return null; // Ne navigiraj, samo pokreni download
+        }
+
+        if (/^https?:\/\//.test(input) || /^file:\/\//.test(input)) {
+            return input;
+        }
+
+        if (/^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/.*)?$/.test(input) && !/\s/.test(input)) {
+            return 'https://' + input;
+        }
+
+        const query = encodeURIComponent(input);
+        return `https://search.brave.com/search?q=${query}`;
+    }
+
+    // Provera da li je link za download
+    function isDownloadLink(url) {
+        const downloadPatterns = [
+            // Ekstenzije za arhive
+            /\.(zip|rar|7z|tar|gz|bz2|xz)$/i,
+            // Ekstenzije za instalere
+            /\.(deb|rpm|dmg|pkg|exe|msi|appimage)$/i,
+            // Ekstenzije za dokumente
+            /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|rtf)$/i,
+            // Ekstenzije za medije
+            /\.(mp3|mp4|avi|mkv|mov|wmv|flv|webm)$/i,
+            // Ekstenzije za slike
+            /\.(jpg|jpeg|png|gif|bmp|webp|svg|ico)$/i,
+            // Ekstenzije za programe
+            /\.(apk|ipa|jar|bin|dat)$/i,
+            // Ekstenzije za fontove
+            /\.(ttf|otf|woff|woff2)$/i,
+            // Ekstenzije za backup
+            /\.(bak|backup|save)$/i,
+            // Ekstenzije za kompresovane fajlove
+            /\.(gz|bz2|xz|zst)$/i
+        ];
+
+        // Proveri da li URL sadrži neku od download ekstenzija
+        return downloadPatterns.some(pattern => pattern.test(url));
+    }
+
+    // Rukovanje download-om
+    function handleDownload(downloadUrl) {
+        console.log('Starting download:', downloadUrl);
+
+        // Proveri da li je apsolutni URL
+        let finalUrl = downloadUrl;
+        if (!/^https?:\/\//.test(downloadUrl)) {
+            finalUrl = 'https://' + downloadUrl;
+        }
+
+        // Pokreni download preko Electron API-ja
+        window.electronAPI.downloadFile(finalUrl)
+            .then(() => {
+                showNotification(`📥 Preuzimanje započeto: ${getFilenameFromUrl(finalUrl)}`);
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                showNotification('❌ Greška pri preuzimanju');
+            });
+    }
+
+    // Ekstrakcija imena fajla iz URL-a
+    function getFilenameFromUrl(url) {
+        try {
+            const urlObj = new URL(url);
+            const pathname = urlObj.pathname;
+            const filename = pathname.split('/').pop() || 'download';
+            return decodeURIComponent(filename);
+        } catch (error) {
+            // Ako URL nije validan, pokušaj da ekstraktuješ ime na osnovu putanje
+            const parts = url.split('/');
+            let filename = parts[parts.length - 1] || 'download';
+            filename = filename.split('?')[0].split('#')[0];
+            return filename;
+        }
+    }
+
+
+
+    // Context menu za address bar
+    addressBar.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        window.electronAPI.showContextMenu();
+    });
+
+    // Print funkcionalnost
+    printBtn.onclick = () => {
+        console.log('Print clicked, activeTabId:', activeTabId);
+        console.log('Active tab:', getActiveTab());
+
+        if (getActiveTab()) {
+            window.electronAPI.printPage(activeTabId)
+                .then(() => {
+                    console.log('Print initiated za trenutni tab');
+                })
+                .catch(error => {
+                    console.error('Print error:', error);
+                    showNotification('❌ Greška pri štampanju');
+                });
+        } else {
+            console.log('Nema aktivnog taba za štampanje!');
+            showNotification('⚠️ Nema stranice za štampanje');
+        }
+    };
+
+    // IPC listeners
+    window.electronAPI.onTabCreated((event, data) => {
+        console.log('Tab created:', data);
+        tabs.push({
+            id: data.id,
+            url: data.url,
+            title: data.title,
+            canGoBack: false,
+            canGoForward: false
+        });
+        if (tabs.length === 1 && activeTabId === null) {
+            activeTabId = data.id;
+        }
+        renderTabs();
+    });
+
+    window.electronAPI.onTabUpdated((event, data) => {
+        console.log('Tab updated:', data);
+        const tabIndex = tabs.findIndex(t => t.id === data.id);
+        if(tabIndex !== -1) {
+            tabs[tabIndex].url = data.url;
+            tabs[tabIndex].title = data.title;
+            tabs[tabIndex].canGoBack = data.canGoBack;
+            tabs[tabIndex].canGoForward = data.canGoForward;
+        }
+        if (data.id === activeTabId) {
+            updateAddressBarAndTitle(data);
+            updateNavButtons(data);
+        }
+        renderTabs();
+    });
+
+    window.electronAPI.onTabSwitched((event, id) => {
+        console.log('Tab switched:', id);
+        activeTabId = id;
+        renderTabs();
+        const activeTab = getActiveTab();
+        if (activeTab) {
+            updateAddressBarAndTitle(activeTab);
+            updateNavButtons(activeTab);
+        }
+    });
+
+    window.electronAPI.onTabClosed((event, id) => {
+        console.log('Tab closed event received:', id);
+        console.log('Tabs before close:', tabs);
+        tabs = tabs.filter(t => t.id !== id);
+        console.log('Tabs after close:', tabs);
+
+        if (activeTabId === id) {
+            activeTabId = tabs.length > 0 ? tabs[tabs.length - 1].id : null;
+        }
+        renderTabs();
+
+        const newActiveTab = getActiveTab();
+        if (newActiveTab) {
+            updateAddressBarAndTitle(newActiveTab);
+            updateNavButtons(newActiveTab);
+        } else {
+            addressBar.value = '';
+            updateNavButtons(null);
+        }
+    });
+
+    // Navigacija
+    backBtn.onclick = () => {
+        if (getActiveTab()) {
+            window.electronAPI.controlTab('back', activeTabId);
+        }
+    };
+
+    forwardBtn.onclick = () => {
+        if (getActiveTab()) {
+            window.electronAPI.controlTab('forward', activeTabId);
+        }
+    };
+
+    reloadBtn.onclick = () => {
+        if (getActiveTab()) {
+            window.electronAPI.controlTab('reload', activeTabId);
+        }
+    };
+
+    devtoolsBtn.onclick = () => {
+        if (getActiveTab()) {
+            window.electronAPI.controlTab('devtools', activeTabId);
+        }
+    };
+
+    homeBtn.onclick = () => {
+        if (getActiveTab()) {
+            window.electronAPI.navigate('https://abel.rs/zx/', activeTabId);
+        }
+    };
+
+    const navigate = () => {
+        let input = addressBar.value.trim();
+        if (!input) return;
+
+        const url = processInput(input);
+
+        // Ako je download link, processInput će vratiti null i pokrenuti download
+        if (!url) return;
+
+        const activeTab = getActiveTab();
+        if (activeTab) {
+            window.electronAPI.navigate(url, activeTabId);
+        } else {
+            window.electronAPI.newTab(url);
+        }
+    };
+
+    searchBtn.onclick = navigate;
+    addressBar.addEventListener('keypress', e => e.key === 'Enter' && navigate());
+
+    document.getElementById('newtab').onclick = () => window.electronAPI.newTab('https://abel.rs/zx/');
+
+    // About meni - otvara about.html stranicu
+    document.getElementById('about').onclick = async () => {
+        try {
+            const result = await window.electronAPI.openAboutPage();
+            if (!result.success) {
+                console.error('Error opening about page:', result.error);
+                // Fallback na staru stranicu
+                window.electronAPI.newTab('http://as.in.rs/qw/repozitorijum.html');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            // Fallback na staru stranicu
+            window.electronAPI.newTab('http://as.in.rs/qw/repozitorijum.html');
+        }
+    };
+
+    function setupDownloadAndIpcListeners() {
+        document.querySelector('.close-downloads').onclick = () => {
+            downloadsContainer.style.display = 'none';
+        };
+
+        // Custom folder event
+        window.electronAPI.onCustomFolderSet((event, data) => {
+            console.log('Custom folder set:', data);
+            customFolderPath = data.path;
+            showNotification(`📁 Folder postavljen: ${data.folderName}`);
+        });
+
+        // URL display events
+        window.electronAPI.onTargetUrlDisplay((event, data) => {
+            console.log('Target URL display:', data);
+
+            if (data.type === 'image') {
+                linkUrlDisplay.textContent = `🖼️ ${data.filename || 'Image'}`;
+                linkUrlDisplay.style.color = '#4CAF50';
+                linkUrlDisplay.title = data.url || '';
+            } else {
+                linkUrlDisplay.textContent = data.url || '';
+                linkUrlDisplay.style.color = '';
+                linkUrlDisplay.title = data.url || '';
+            }
+        });
+
+        // Download events
+        window.electronAPI.onDownloadStart((event, data) => {
+            if (data.auto) {
+                // Auto-download - prikaži samo u status baru
+                downloadInfo.textContent = `${data.filename} - 0%`;
+                downloadInfo.style.color = '#4CAF50';
+                console.log('Auto-download started:', data.filename);
+            } else {
+                // Manual download - prikaži u download panelu
+                activeDownloads++;
+                downloadsContainer.style.display = 'block';
+
+                const itemEl = document.createElement('div');
+                itemEl.className = 'download-item';
+                itemEl.id = `dl-${data.id}`;
+                itemEl.innerHTML = `
+                    <div style="font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${data.filename}</div>
+                    <div class="progress-bar"><div id="dl-progress-${data.id}" class="progress-bar-fill" style="width: 0%;"></div></div>
+                    <div id="dl-status-${data.id}" style="opacity: 0.7;">Počelo... (0 Bytes / ${formatBytes(data.totalBytes)})</div>
+                `;
+                downloadsList.prepend(itemEl);
+            }
+        });
+
+        window.electronAPI.onDownloadProgress((event, data) => {
+            if (data.auto) {
+                // Auto-download - ažuriraj status bar
+                downloadInfo.textContent = `${data.filename} - ${data.progress}%`;
+            } else {
+                // Manual download - ažuriraj progress bar
+                const progressFill = document.getElementById(`dl-progress-${data.id}`);
+                const statusText = document.getElementById(`dl-status-${data.id}`);
+
+                if (progressFill) {
+                    progressFill.style.width = `${data.progress}%`;
+                    if (statusText) {
+                        statusText.textContent = `${data.progress}% (${formatBytes(data.receivedBytes)} / ${formatBytes(data.totalBytes)})`;
+                    }
+                }
+            }
+        });
+
+        window.electronAPI.onDownloadComplete((event, data) => {
+            if (data.auto) {
+                // Auto-download - prikaži success u status baru
+                downloadInfo.textContent = `✅ ${data.filename}`;
+                downloadInfo.style.color = '#4CAF50';
+
+                setTimeout(() => {
+                    downloadInfo.textContent = '';
+                    downloadInfo.style.color = '';
+                }, 3000);
+                console.log('Auto-download completed:', data.filename);
+            } else {
+                // Manual download - ažuriraj download panel
+                activeDownloads--;
+                const itemEl = document.getElementById(`dl-${data.id}`);
+                if (itemEl) {
+                    itemEl.style.background = '#1e8e3e';
+                    const statusDiv = itemEl.querySelector('div:last-child');
+                    if (statusDiv) statusDiv.innerHTML = `Završeno! <a href="file://${data.path}" style="color: white; text-decoration: underline;">(Otvori)</a>`;
+                }
+                if (activeDownloads === 0) {
+                    downloadInfo.textContent = '';
+                }
+            }
+        });
+
+        window.electronAPI.onDownloadFailed((event, data) => {
+            if (data.auto) {
+                // Auto-download - prikaži grešku u status baru
+                downloadInfo.textContent = `❌ ${data.state}`;
+                downloadInfo.style.color = '#ff4444';
+
+                setTimeout(() => {
+                    downloadInfo.textContent = '';
+                    downloadInfo.style.color = '';
+                }, 5000);
+            } else {
+                // Manual download - ažuriraj download panel
+                activeDownloads--;
+                const itemEl = document.getElementById(`dl-${data.id}`);
+                if (itemEl) {
+                    itemEl.style.background = '#d93025';
+                    const statusDiv = itemEl.querySelector('div:last-child');
+                    if (statusDiv) statusDiv.textContent = `Greška: ${data.state}`;
+                }
+                if (activeDownloads === 0) downloadInfo.textContent = '';
+            }
+            console.log('Download failed:', data.state);
+        });
+    }
+
+    // Auto-hide link display
+    let linkDisplayTimeout;
+    function resetLinkDisplayTimeout() {
+        clearTimeout(linkDisplayTimeout);
+        linkDisplayTimeout = setTimeout(() => {
+            linkUrlDisplay.textContent = '';
+            linkUrlDisplay.title = '';
+        }, 5000);
+    }
+
+    // Reset timeout on new hover events
+    const originalOnTargetUrlDisplay = window.electronAPI.onTargetUrlDisplay;
+    window.electronAPI.onTargetUrlDisplay = (callback) => {
+        return originalOnTargetUrlDisplay((event, data) => {
+            resetLinkDisplayTimeout();
+            callback(event, data);
+        });
+    };
+
+    // Keyboard shortcuts - samo za specijalne slučajeve
+    document.addEventListener('keydown', (e) => {
+        // ESC za zatvaranje download panela
+        if (e.key === 'Escape') {
+            if (downloadsContainer.style.display === 'block') {
+                downloadsContainer.style.display = 'none';
+            }
+        }
+
+        // CTRL+1,2,3... za brzi pristup tabovima (samo ako postoje tabovi)
+        if (e.ctrlKey && !e.shiftKey && !e.altKey && e.key >= '1' && e.key <= '9') {
+            e.preventDefault();
+            const tabIndex = parseInt(e.key) - 1;
+            if (tabIndex < tabs.length) {
+                const tabId = tabs[tabIndex].id;
+                window.electronAPI.controlTab('activate', tabId);
+                showShortcutHint(`Ctrl+${e.key} - Tab ${parseInt(e.key)}`);
+            }
+        }
+    });
+
+    window.addEventListener('load', () => {
+        // Prvo detektuj platformu
+        detectPlatform().then(() => {
+            // Onda postavi ostale listenere
+            setupDownloadAndIpcListeners();
+            resetLinkDisplayTimeout();
+            initializeLogoDrag();
+            initializeGlobalShortcuts(); // INICIJALIZUJ PREČICE
+        });
+    });
+
+    // Double-click na tab za novi tab
+    tabsContainer.addEventListener('dblclick', (e) => {
+        if (e.target === tabsContainer) {
+            window.electronAPI.newTab('https://abel.rs/zx/');
+        }
+    });
+
+    // Error handling
+    window.addEventListener('error', (e) => {
+        console.error('Global error:', e.error);
+    });
+
+    window.addEventListener('unhandledrejection', (e) => {
+        console.error('Unhandled promise rejection:', e.reason);
+    });
+</script>
+</body>
+</html>

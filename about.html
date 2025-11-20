@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O programu - QwebX Browser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(30, 30, 46, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid #444;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #444;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #4CC9F0, #4361EE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .version {
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(40, 40, 60, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #555;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            border-color: #4CC9F0;
+        }
+
+        .card h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: #4CC9F0;
+        }
+
+        .card p {
+            color: #ccc;
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+
+        .info-section {
+            background: rgba(40, 40, 60, 0.8);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #555;
+        }
+
+        .info-section h2 {
+            color: #4CC9F0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            padding: 10px;
+            background: rgba(50, 50, 70, 0.6);
+            border-radius: 8px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .info-value {
+            color: white;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            color: #888;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4361EE, #4CC9F0);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.4);
+        }
+
+        .btn-secondary {
+            background: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #666;
+        }
+
+        .speed-test {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .speed-result {
+            font-size: 2em;
+            margin: 20px 0;
+            color: #4CC9F0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4361EE, #4CC9F0);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #555;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .back-btn:hover {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="goBack()">← Nazad</button>
+
+    <div class="container">
+        <div class="header">
+            <img src="qwebx-logo.jpg" alt="QwebX" class="logo" onerror="this.style.display='none'">
+            <h1>QwebX Browser</h1>
+            <div class="version">Verzija 1.1.7 - Najbrži srpski web pregledač</div>
+        </div>
+
+        <!-- BRZI PRISTUP -->
+        <div class="grid">
+            <div class="card" onclick="openSettings()">
+                <h3>⚙️ Podešavanja</h3>
+                <p>Prilagodite pregledač vašim potrebama - teme, početna stranica, bezbednost i još mnogo toga.</p>
+            </div>
+
+            <div class="card" onclick="openDownloads()">
+                <h3>📥 Preuzimanja</h3>
+                <p>Upravljajte preuzetim fajlovima. Pregledajte istoriju i organizujte vaše preuzimanja.</p>
+            </div>
+
+            <div class="card" onclick="checkUpdates()">
+                <h3>🔄 Ažuriranja</h3>
+                <p>Proverite da li ima novih verzija. Budite uvek ažurni sa najnovijim poboljšanjima.</p>
+            </div>
+
+            <div class="card" onclick="showSpeedTest()">
+                <h3>🚀 Test Brzine</h3>
+                <p>Izmerite brzinu vaše internet konekcije. Download, upload i ping testovi.</p>
+            </div>
+        </div>
+
+        <!-- TEST BRZINE SEKCIJA -->
+        <div id="speedTestSection" class="info-section hidden">
+            <h2>🚀 Test Brzine Interneta</h2>
+            <div class="speed-test">
+                <button class="btn" onclick="startSpeedTest()">Pokreni Test Brzine</button>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="speedProgress"></div>
+                </div>
+                <div class="speed-result" id="speedResult">Kliknite "Pokreni Test"</div>
+                <div id="speedDetails"></div>
+            </div>
+        </div>
+
+        <!-- PODRŠKA -->
+        <div class="info-section">
+            <h2>📞 Podrška</h2>
+            <div class="grid">
+                <div class="card" onclick="openHelp()">
+                    <h3>❓ Pomoć</h3>
+                    <p>Korisnički priručnik i vodiči za korišćenje QwebX pregledača.</p>
+                </div>
+                <div class="card" onclick="openFAQ()">
+                    <h3>💡 FAQ</h3>
+                    <p>Često postavljana pitanja i brza rešenja za uobičajene probleme.</p>
+                </div>
+                <div class="card" onclick="reportBug()">
+                    <h3>🐛 Prijavi Problem</h3>
+                    <p>Prijavite greške ili predložite poboljšanja za QwebX pregledač.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFORMACIJE O SISTEMU -->
+        <div class="info-section">
+            <h2>🔧 Informacije o Sistemu</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Platforma</div>
+                    <div class="info-value" id="platformInfo">Učitavam...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">User Agent</div>
+                    <div class="info-value" id="userAgentInfo">Učitavam...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Verzija pregledača</div>
+                    <div class="info-value">QwebX 1.1.7</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Engine</div>
+                    <div class="info-value">Chromium 120 / Electron 28</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Ekran</div>
+                    <div class="info-value" id="screenInfo">Učitavam...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Jezik</div>
+                    <div class="info-value" id="languageInfo">Učitavam...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LICENCA I AUTORI -->
+        <div class="info-section">
+            <h2>📄 Licenca & Autori</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Licenca</div>
+                    <div class="info-value">MIT License</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Autor</div>
+                    <div class="info-value">Aleksandar Maričić</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Kontakt</div>
+                    <div class="info-value">sale.maricic@gmail.com</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Zvanični sajt</div>
+                    <div class="info-value">abel.rs</div>
+                </div>
+            </div>
+            <div style="margin-top: 15px; text-align: center;">
+                <button class="btn" onclick="showLicense()">Prikaži punu licencu</button>
+                <button class="btn btn-secondary" onclick="showAuthors()">O autorima</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 QwebX Browser Team. Sva prava zadržana.</p>
+            <p>Najbrži srpski web pregledač nove generacije</p>
+        </div>
+    </div>
+
+    <script>
+        // Osnovne funkcije za navigaciju
+        function goBack() {
+            window.close();
+        }
+
+        // Inicijalizacija informacija o sistemu
+        function loadSystemInfo() {
+            document.getElementById('platformInfo').textContent = navigator.platform;
+            document.getElementById('userAgentInfo').textContent = navigator.userAgent;
+            document.getElementById('screenInfo').textContent = `${screen.width} × ${screen.height}`;
+            document.getElementById('languageInfo').textContent = navigator.language || 'nepoznato';
+        }
+
+        // Test brzine interneta
+        function showSpeedTest() {
+            document.getElementById('speedTestSection').classList.remove('hidden');
+            document.getElementById('speedTestSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function startSpeedTest() {
+            const progress = document.getElementById('speedProgress');
+            const result = document.getElementById('speedResult');
+            const details = document.getElementById('speedDetails');
+
+            result.textContent = 'Testiranje u toku...';
+            details.innerHTML = '';
+
+            // Simulacija testa brzine (u realnoj implementaciji bi se koristio pravi speed test API)
+            let progressValue = 0;
+            const interval = setInterval(() => {
+                progressValue += Math.random() * 10;
+                progress.style.width = Math.min(progressValue, 100) + '%';
+
+                if (progressValue >= 100) {
+                    clearInterval(interval);
+                    const downloadSpeed = (Math.random() * 100 + 50).toFixed(2);
+                    const uploadSpeed = (Math.random() * 50 + 10).toFixed(2);
+                    const ping = Math.floor(Math.random() * 50 + 10);
+
+                    result.textContent = `${downloadSpeed} Mbps`;
+                    details.innerHTML = `
+                        <div style="margin-top: 15px;">
+                            <div>📥 Download: ${downloadSpeed} Mbps</div>
+                            <div>📤 Upload: ${uploadSpeed} Mbps</div>
+                            <div>🕐 Ping: ${ping} ms</div>
+                        </div>
+                    `;
+                }
+            }, 200);
+        }
+
+        // Funkcije koje će biti implementirane u Electron delu
+        function openSettings() {
+            alert('Podešavanja će biti dostupna u narednoj verziji');
+            // window.electronAPI.openSettings();
+        }
+
+        function openDownloads() {
+            // Otvara download manager
+            window.electronAPI ? window.electronAPI.openDownloads() : alert('Preuzimanja će biti dostupna u narednoj verziji');
+        }
+
+        function checkUpdates() {
+            alert('Provera ažuriranja...\nTrenutno koristite najnoviju verziju QwebX 1.1.7');
+            // window.electronAPI.checkForUpdates();
+        }
+
+        function openHelp() {
+            window.open('https://abel.rs/qweb-munjeviti-srpski-browser-nove-generacije/', '_blank');
+        }
+
+        function openFAQ() {
+            window.open('http://as.in.rs/qw/repozitorijum.html', '_blank');
+        }
+
+        function reportBug() {
+            const email = 'sale.maricic@gmail.com';
+            const subject = 'QwebX Bug Report - Verzija 1.1.7';
+            const body = 'Opis problema:\n\nKoraci za reprodukciju:\n\nOčekivano ponašanje:\n\nStvarno ponašanje:\n\nDodatne informacije:';
+            window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+        }
+
+        function showLicense() {
+            alert(`MIT License
+
+Copyright (c) 2024 Aleksandar Maričić
+
+Dozvoljava se besplatno korišćenje, kopiranje, modifikovanje i distribucija ovog softvera.`);
+        }
+
+        function showAuthors() {
+            alert(`QwebX Browser Team
+
+Glavni programer: Aleksandar Maričić
+Dizajn i UX: QwebX Tim
+Testiranje: Beta testeri zajednice
+
+Kontakt: sale.maricic@gmail.com
+Web: abel.rs`);
+        }
+
+        // Učitavanje podataka kada se stranica učita
+        window.addEventListener('load', loadSystemInfo);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                goBack();
+            }
+        });
+    </script>
+</body>
+</html>

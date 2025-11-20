@@ -1,0 +1,69 @@
+{
+  "name": "QwebX",
+  "version": "1.2.4",
+  "description": "The fastest Serbian web browser.!",
+  "main": "main.js",
+  "homepage": "https://abel.rs/qweb-munjeviti-srpski-browser-nove-generacije/",
+  "author": {
+    "name": "Aleksandar Maričić",
+    "email": "sale.maricic@gmail.com"
+  },
+  "scripts": {
+    "start": "electron .",
+    "build-deb": "electron-builder --linux deb",
+    "build-appimage": "electron-builder --linux AppImage",
+    "build-win": "electron-builder --win portable",
+    "build-mac": "electron-builder --mac zip",
+    "package-mac": "electron-packager . QwebX --platform=darwin --arch=x64 --out=dist/ --overwrite --electron-version=28.0.0 --app-version=1.1.7 --icon=build/icon.icns",
+    "create-mac-zip": "npm run package-mac && cd dist/QwebX-darwin-x64 && zip -r ../QwebX-1.1.7-mac.zip .",
+    "make-ico": "convert build/icon.png -resize 256x256 build/icon.ico",
+    "make-icns": "convert build/icon.png -resize 1024x1024 build/icon_1024.png && png2icns build/icon.icns build/icon_1024.png",
+    "icons": "npm run make-ico && npm run make-icns"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^39.2.3",
+    "electron-builder": "^26.0.12",
+    "electron-packager": "^17.1.2",
+    "png-to-ico": "^2.1.8"
+  },
+  "build": {
+    "appId": "com.AleksandarMaricic.QwebX",
+    "productName": "QwebX",
+    "linux": {
+      "target": [
+        "deb",
+        "AppImage"
+      ],
+      "category": "Network",
+      "icon": "build/icon.png",
+      "executableName": "QwebX",
+      "maintainer": "Aleksandar Maričić <sale.maricic@gmail.com>"
+    },
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": [
+        "zip"
+      ],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "files": [
+      "index.html",
+      "main.js",
+      "preload.js",
+      "about.html",
+      "qwebx-logo.jpg",
+      "icon.png",
+      "build/icon.png",
+      "build/icon.ico",
+      "build/icon.icns",
+      "build/icon_1024.png"
+    ]
+  }
+}
