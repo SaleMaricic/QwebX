@@ -1,5 +1,5 @@
 # QwebX
-Izvorni kod za QwebX, brzi srpski web pretraživač baziran na Electronu.
+Brzi Electron/Chromium pretraživač, posebno optimizovan da omogući starijim macOS sistemima (Yosemite, El Capitan, Mojave) korišćenje modernih veb servisa i funkcionalnosti.
 # QwebX - Srpski Browser Nove Generacije
 
 [![GitHub license](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
