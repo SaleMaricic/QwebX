@@ -3,10 +3,10 @@
   "version": "1.2.4",
   "description": "The fastest Serbian web browser.!",
   "main": "main.js",
-  "homepage": "https://abel.rs/qweb-munjeviti-srpski-browser-nove-generacije/",
+  "homepage": "https://abel.rs/qwebx-browser-v1-2-4/",
   "author": {
     "name": "Aleksandar Maričić",
-    "email": "sale.maricic@gmail.com"
+    "email": "qwebx@abel.rs"
   },
   "scripts": {
     "start": "electron .",
@@ -38,7 +38,7 @@
       "category": "Network",
       "icon": "build/icon.png",
       "executableName": "QwebX",
-      "maintainer": "Aleksandar Maričić <sale.maricic@gmail.com>"
+      "maintainer": "Aleksandar Maričić <qwebx@abel.rs>"
     },
     "win": {
       "target": [
