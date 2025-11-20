@@ -40,21 +40,22 @@ Software | Minimal Version | Purpose
 ### 2. Preparation and Dependency Installation
 
 Clone the complete project repository and install all dependencies:
-
+```bash
     # Clone the repository
     git clone https://github.com/SaleMaricic/QwebX.git
     cd QwebX
 
     # Install all dependencies (package.json)
     npm install
-
+```
 ### 3. Compiling for Specific Platforms
 QwebX uses electron-builder for automated packaging.
 All necessary build scripts are defined in the "scripts" section of package.json.
 #### Testing in Development Mode
 For quick application testing without compiling the final package:
+```bash
     npm run start
-
+```
 #### 📦 Compiling Final Packages
 
 Platform | Execution Command | Output Format
@@ -66,12 +67,14 @@ Platform | Execution Command | Output Format
 
 ### 4. Generating System Icons
 If the source file build/icon.png is modified, you must regenerate all formatted icons (.ico, .icns):
+```bash
     npm run icons
-
+```
 ### 5. Output Directory
 All final, compiled packages will be generated in the directory:
+```bash
     QwebX/dist/
-
+```
 ### 🖥️ Target Platform and Compatibility
 
 QwebX is specifically optimized to revitalize older macOS versions:
